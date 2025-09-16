@@ -1,32 +1,33 @@
 # SPDX-License-Identifier: Apache-2.0
-import socket, struct
-import numpy as np
+import socket, struct, numpy as np, os, itertools
 
 MAGIC=b"TRT\x01"; VERSION=1
+_req_counter = itertools.count(1)
 
-def infer(host, port, model_id: str, arrs):
-    # arrs: list[np.ndarray] (contiguous, C-order)
-    hdr = struct.pack("<4sHHIII", MAGIC, VERSION, 0, len(model_id), len(arrs), 0)
+def _pack_hdr(req_id, model_id, tensors):
+    H = struct.pack("<4sHHIII", MAGIC, VERSION, 0, len(model_id), len(tensors), 0)
     body = model_id.encode()
-    # each input: dtype(1) ndims(1) dims(int32*nd) len(uint32)  + raw
-    payload = []
-    for a in arrs:
+    for a in tensors:
         a = np.ascontiguousarray(a)
         if   a.dtype==np.float32: dt=0
         elif a.dtype==np.float16: dt=1
         elif a.dtype==np.int8:    dt=2
         elif a.dtype==np.int32:   dt=3
         else: raise ValueError("unsupported dtype")
-        nd = a.ndim
-        dims = list(a.shape)
-        raw = a.tobytes()
-        desc = struct.pack("<BB", dt, nd) + struct.pack("<%di"%nd, *dims) + struct.pack("<I", len(raw))
-        body += desc
-        payload.append(raw)
+        nd=a.ndim; dims=a.shape
+        body += struct.pack("<BB", dt, nd)
+        body += struct.pack("<%di"%nd, *dims)
+        raw=a.tobytes()
+        body += struct.pack("<I", len(raw))
+        body += raw
+    frame = H + body
+    return struct.pack("<I", len(frame)) + frame
 
-    with socket.create_connection((host,port), timeout=10) as s:
-        s.sendall(hdr + body + b"".join(payload))
-        # response: status(uint32) nout(uint32) each: len(uint32) then raw blobs
+def infer(host, port, model_id, arrays, timeout=10.0):
+    req_id = next(_req_counter)
+    frame = _pack_hdr(req_id, model_id, arrays)
+    with socket.create_connection((host,port), timeout=timeout) as s:
+        s.sendall(frame)
         def recvn(n):
             buf=b""
             while len(buf)<n:
@@ -34,7 +35,13 @@ def infer(host, port, model_id: str, arrs):
                 if not chunk: raise OSError("short read")
                 buf+=chunk
             return buf
-        status, nout = struct.unpack("<II", recvn(8))
-        lens = [struct.unpack("<I", recvn(4))[0] for _ in range(nout)]
-        outs  = [recvn(L) for L in lens]
-    return outs
+        flen, = struct.unpack("<I", recvn(4))
+        payload = recvn(flen)
+        off=0
+        rid, status, nout = struct.unpack_from("<III", payload, off); off+=12
+        lens = [struct.unpack_from("<I", payload, off+i*4)[0] for i in range(nout)]
+        off += 4*nout
+        outs=[]; 
+        for L in lens:
+            outs.append(payload[off:off+L]); off+=L
+        return status, outs

@@ -1,0 +1,18 @@
+FROM nvcr.io/nvidia/l4t-tensorrt:r8.5.2-runtime
+WORKDIR /app
+RUN apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+    build-essential cmake libyaml-cpp-dev curl \
+    && rm -rf /var/lib/apt/lists/*
+COPY . /app
+ENV EIG_FETCH_MOBILENET=0
+# on Jetson, trtexec is available in PATH from TensorRT debs
+RUN bash tools/download_assets.sh && \
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j && \
+    chmod +x docker/entrypoint.sh
+RUN useradd -u 10001 -m eig
+RUN chown -R 10001:10001 /app
+USER 10001:10001
+EXPOSE 8008 8080
+ENV EIG_PORT=8008 EIG_HTTP_PORT=8080
+ENTRYPOINT ["./docker/entrypoint.sh"]
+CMD ["./build/edge-infer-gateway","--config","config/models.yaml","--port","8008","--http-port","8080"]

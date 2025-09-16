@@ -1,6 +1,9 @@
 import argparse, numpy as np
 from PIL import Image
 from pathlib import Path
+import sys
+
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 from gateway_client import infer
 
 IMNET_MEAN = np.array([0.485,0.456,0.406],dtype=np.float32)

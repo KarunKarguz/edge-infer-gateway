@@ -10,6 +10,7 @@ class TRTRunner;
 struct ModelCfg {
   std::string id;
   std::string engine;
+  int concurrency{1};
 };
 
 class ModelManager {

@@ -1,9 +1,59 @@
+server:
+  host: "0.0.0.0"
+  port: 8008
+  http_port: 8080
+  max_clients: 256
+  read_timeout_ms: 30000
+  write_timeout_ms: 30000
+  queue_depth: 1024
+
 models:
   - id: "mobilenet_v2_cls"
     engine: "models/mobilenetv2_fp32.plan"
     input:
+      dtype: "fp32"
       layout: "NCHW"
-      dtype:  "fp32"
       shape:  [1, 3, 224, 224]
     outputs:
-      - name: "logits"   # [1,1000]
+      - name: "logits"
+        dtype: "fp32"
+        shape: [1, 1000]
+    concurrency: 2   # number of TRT contexts
+
+  - id: "yolov5n_coco"
+    engine: "models/yolov5n_fp16.plan"
+    # note: engine defines exact io; fields below are informational
+    input:
+      dtype: "fp16"
+      layout: "NCHW"
+      shape:  [1, 3, 640, 640]
+    outputs:
+      - name: "preds"
+        dtype: "fp16"
+        shape: [1, 25200, 85]
+    concurrency: 2
+
+  - id: "yolov5s_coco"
+    engine: "models/yolov5s_fp16.plan"
+    input:
+      dtype: "fp16"
+      layout: "NCHW"
+      shape:  [1, 3, 640, 640]
+    outputs:
+      - name: "preds"
+        dtype: "fp16"
+        shape: [1, 25200, 85]
+    concurrency: 2
+
+  # Optional: SSD MobileNet (provide ONNX yourself; see tools/fetch_mobilenet_ssd.sh)
+  - id: "ssd_mobilenet_coco"
+    engine: "models/ssd_mobilenet_fp32.plan"
+    input:
+      dtype: "fp32"
+      layout: "NCHW"
+      shape: [1, 3, 300, 300]
+    outputs:
+      - name: "detections"
+        dtype: "fp32"
+        shape: [1, 1, 200, 7]
+    concurrency: 2
