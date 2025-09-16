@@ -1,0 +1,8 @@
+services:
+  gateway:
+    build: ..
+    runtime: nvidia
+    environment:
+      - NVIDIA_DISABLE_REQUIRE=1
+    ports: ["8008:8008"]
+    restart: unless-stopped
