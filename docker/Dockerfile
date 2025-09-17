@@ -6,6 +6,7 @@ COPY . /app
 ENV EIG_FETCH_MOBILENET=0
 ENV EIG_AUTO_ASSET_DOWNLOAD=1
 ENV EIG_REUSE_ENGINES=0
+ENV EIG_EXPORT_SSD=1
 
 RUN bash tools/download_assets.sh && \
     cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j && \

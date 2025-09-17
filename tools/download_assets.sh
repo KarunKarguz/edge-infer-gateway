@@ -57,3 +57,12 @@ fetch_if_missing assets/yolov5s.onnx 1000000 \
   "https://github.com/ultralytics/yolov5/releases/download/v7.0/yolov5s.onnx"
 
 echo "Assets ready under ./assets"
+
+if [[ "${EIG_EXPORT_SSD:-1}" == "1" ]]; then
+  echo "Downloading SSD-Mobilenet ONNX (v1.0)..."
+  python3 -m pip install onnx onnxruntime --user
+  python3 -m pip install torch torchvision --user
+  python3 tools/convert_ssd_mobilenet.py
+else
+  echo "Skipping SSD-Mobilenet export (EIG_EXPORT_SSD=0)"  
+fi
