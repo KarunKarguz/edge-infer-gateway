@@ -1,0 +1,74 @@
+version: 1
+
+gateway:
+  host: 127.0.0.1
+  port: 8008
+  pool_size: 4
+  timeout_s: 3.0
+
+connectors:
+  - id: floor1-mqtt
+    type: mqtt
+    host: mqtt-broker
+    port: 1883
+    username: edge
+    password: edge
+    reconnect_interval: 5
+    topics:
+      - filter: sensors/floor1/+/env
+        pipeline: env-quality
+        serializer: json
+      - filter: sensors/floor1/cam/frontdoor
+        pipeline: frontdoor-vision
+        serializer: jpeg
+  - id: frontdoor-camera
+    type: camera
+    source: 0
+    interval: 0.2
+    encoding: bgr
+    pipeline: frontdoor-vision
+
+pipelines:
+  - id: env-quality
+    preprocess: env.vector_to_tensor
+    model: mobilenet_v2_cls
+    postprocess: env.softmax_topk
+    agents:
+      - air_quality_alert
+    deadline_ms: 200
+  - id: frontdoor-vision
+    preprocess: vision.jpeg_to_yolov5
+    model: yolov5n_coco
+    postprocess: vision.yolo_nms
+    agents:
+      - frontdoor_guard
+      - frontdoor_archive
+    deadline_ms: 250
+
+agents:
+  air_quality_alert:
+    type: threshold
+    metric: co2_ppm
+    threshold: 800
+    dispatcher: log
+  frontdoor_guard:
+    type: person_in_zone
+    zone: frontdoor
+    dispatcher: mqtt_actuators
+    target: actuators/frontdoor
+  frontdoor_archive:
+    type: snapshot_archive
+    dispatcher: log
+
+actions:
+  log:
+    type: log
+  mqtt_actuators:
+    type: mqtt
+    host: mqtt-broker
+    port: 1883
+    topic: actuators/frontdoor
+    qos: 1
+    retain: false
+
+metrics_port: 9108

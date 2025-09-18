@@ -3,6 +3,8 @@ WORKDIR /app
 RUN apt-get update -qq && apt-get install -y -qq build-essential cmake libyaml-cpp-dev curl && rm -rf /var/lib/apt/lists/*
 COPY . /app
 
+RUN python3 -m pip install --no-cache-dir -r requirements.orchestrator.txt
+
 ENV EIG_FETCH_MOBILENET=0
 ENV EIG_AUTO_ASSET_DOWNLOAD=1
 ENV EIG_REUSE_ENGINES=0

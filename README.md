@@ -13,6 +13,7 @@
 - Pinned host buffers, preallocated device bindings
 - Simple binary protocol; Python client examples
 - Metrics in logs (mean/p95/qps every 100 reqs)
+- **NEW:** Async edge orchestrator (Python) for multi-sensor ingestion, agent routing, and action dispatch (MQTT/webhook/log)
 
 ## New: YOLOv5n/s Object Detection
 - Assets downloader now fetches `yolov5n.onnx` and `yolov5s.onnx` from Ultralytics.
@@ -38,8 +39,13 @@ cd edge-infer-gateway
 
 # build & run (Docker build)
 docker build -t edge-infer-gateway -f docker/Dockerfile .
-docker run --gpus all -e NVIDIA_DISABLE_REQUIRE=1 -p 8008:8008 -p 8080:8080 edge-infer-gateway
-# entrypoint will build TensorRT engines on first start (requires GPU access)
+docker run --gpus all -e NVIDIA_DISABLE_REQUIRE=1 -p 8008:8008 -p 8080:8080 -p 9108:9108 \
+  edge-infer-gateway
+# entrypoint launches the TensorRT gateway and the orchestrator. Disable orchestration via EIG_ENABLE_ORCHESTRATOR=0.
+
+# orchestrator only (host GPU)
+python3 -m pip install -r requirements.orchestrator.txt
+python3 -m orchestrator.app --config config/pipelines.yaml
 
 # build & run locally
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DEIG_BUILD_CLIENT_CPP=ON
@@ -98,6 +104,7 @@ Notes:
 - YOLOv5 engines here are built as FP16; clients send `np.float16` inputs for optimal performance.
 - NVIDIA GeForce 920MX (Maxwell) can work with older CUDA/TensorRT; ensure your local environment’s TensorRT version supports your GPU. Inside the provided container (TensorRT 22.12), very old GPUs may not be recognized. For laptops, consider building natively with a matching TensorRT version.
 - Classification demo downloads can be skipped by setting `EIG_FETCH_MOBILENET=0` before running `tools/download_assets.sh` (the Dockerfile already honors this via env override).
+- Edge orchestrator design + pipeline configuration live in `docs/SYSTEM_DESIGN.md`.
 
 ## Host-Mounted Assets & Engines
 - Persist ONNX assets and TensorRT plans by binding host directories:
@@ -113,6 +120,14 @@ Notes:
 - Engines rebuild on each container start by default to capture driver/architecture changes. Set `-e EIG_REUSE_ENGINES=1` to reuse existing plans without rebuilding.
 - Override `-e EIG_FETCH_MOBILENET=0` to skip classification assets (already default in the Dockerfile).
 - Asset download runs automatically on startup (`EIG_AUTO_ASSET_DOWNLOAD=1`). Disable if you manage ONNX files manually.
+
+## Edge Orchestrator
+- Configure pipelines, agents, and action dispatchers in `config/pipelines.yaml` (see `docs/SYSTEM_DESIGN.md`).
+- Runtime knobs:
+  - `EIG_ENABLE_ORCHESTRATOR=0` disables the orchestrator (gateway only).
+  - `EIG_PIPELINES_CONFIG` overrides the orchestrator config path.
+- Prometheus metrics listen on the port declared in `config.metrics_port` (defaults to 9108).
+- MQTT/BLE/OpenCV dependencies are preinstalled in the container via `requirements.orchestrator.txt`. Install the same file on bare-metal deployments.
 
 ### C++ Streaming Client
 Build with OpenCV enabled to use the streaming client:

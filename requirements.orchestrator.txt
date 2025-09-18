@@ -1,0 +1,7 @@
+asyncio-mqtt>=0.16
+aiohttp>=3.9
+bleak>=0.20
+opencv-python-headless>=4.8
+prometheus-client>=0.16
+pyyaml>=6.0
+numpy>=1.23

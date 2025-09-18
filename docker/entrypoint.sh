@@ -39,4 +39,26 @@ if [[ "${EIG_BUILD_ENGINES:-1}" == "1" ]]; then
   
 fi
 
-exec "$@"
+orch_pid=""
+if [[ "${EIG_ENABLE_ORCHESTRATOR:-1}" == "1" ]]; then
+  orch_cfg="${EIG_PIPELINES_CONFIG:-config/pipelines.yaml}"
+  echo "[entrypoint] Launching orchestrator (config=${orch_cfg})"
+  python3 -m orchestrator.app --config "${orch_cfg}" &
+  orch_pid=$!
+fi
+
+"$@" &
+main_pid=$!
+
+set +e
+wait -n "$main_pid" ${orch_pid:+$orch_pid}
+status=$?
+
+if [[ -n "$orch_pid" ]]; then
+  echo "[entrypoint] Stopping orchestrator (pid=$orch_pid)"
+  kill "$orch_pid" >/dev/null 2>&1 || true
+  wait "$orch_pid" 2>/dev/null || true
+fi
+
+wait "$main_pid" 2>/dev/null || true
+exit $status

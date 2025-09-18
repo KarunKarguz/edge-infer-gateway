@@ -1,6 +1,6 @@
 # edge-infer-gateway Architecture
 
-This document captures the layout of the project, how the runtime is structured, and how to extend it for new models or deployment environments.
+This document captures the layout of the project, how the runtime is structured, and how to extend it for new models or deployment environments. For the full end-to-end system (sensor connectors, agent framework, action dispatch) see `docs/SYSTEM_DESIGN.md`.
 
 ## Layout Overview
 
@@ -67,6 +67,16 @@ Key scripts:
 - Inspect server logs for per-request latency; they are structured JSON and easy to ingest with your logging stack.
 
 For deeper profiling, run `trtexec --loadEngine=models/<engine>.plan --dumpProfile` inside the container to view TensorRT layer timings, or use Nsight Systems against the running gateway.
+
+## Edge Orchestrator (Python)
+
+The inference gateway now ships with an optional Python orchestrator that owns sensor ingestion, preprocessing, and agent execution around the C++ TensorRT server. Key points:
+- Runs alongside the gateway (same container or host) and communicates via the existing TCP protocol.
+- Provides connector plugins (MQTT, BLE, OpenCV camera) out of the box; new transports can be registered under `orchestrator/connectors`.
+- Uses a connection pool to multiplex multiple pipelines across the TensorRT models configured in `config/models.yaml`.
+- Dispatches actions (MQTT topics, webhooks, GPIO scripts) emitted by configurable agents.
+
+Read `docs/SYSTEM_DESIGN.md` for pipeline configuration and deployment guidance for the orchestrator layer.
 
 ---
 Maintainers: when touching the runtime, keep headers focused, avoid hidden magic in the entrypoint, and prefer explicit environment variable overrides for optional behavior. This keeps deployments predictable across embedded devices and laptops alike.
