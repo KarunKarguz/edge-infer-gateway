@@ -34,7 +34,7 @@
 ## Quickstart
 ```bash
 # clone 
-git clone https://github.com/<you>/edge-infer-gateway.git
+git clone https://github.com/KarunKarguz/edge-infer-gateway.git
 cd edge-infer-gateway
 
 # build & run (Docker build)
