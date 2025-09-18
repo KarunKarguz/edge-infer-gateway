@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Vision agents for YOLO detections."""
 from __future__ import annotations
 

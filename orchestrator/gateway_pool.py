@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Connection pool for the TensorRT TCP gateway."""
 from __future__ import annotations
 

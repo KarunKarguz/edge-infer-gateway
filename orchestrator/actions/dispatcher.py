@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Dispatcher registry that fans out actions to concrete transports."""
 from __future__ import annotations
 

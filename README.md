@@ -133,6 +133,7 @@ Notes:
 - Dev dependencies: `python3 -m pip install -r requirements.dev.txt`
 - Run orchestrator integration smoke test: `pytest tests/test_integration.py`
 - The integration harness spins up a stub TensorRT gateway, an in-process MQTT broker, and the Python orchestrator to validate model routing + latency reporting.
+- See `CONTRIBUTING.md` for full contributor workflow and expectations.
 
 ### C++ Streaming Client
 Build with OpenCV enabled to use the streaming client:

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Agent base classes for decision logic around inference outputs."""
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Pipeline execution primitives."""
 from __future__ import annotations
 

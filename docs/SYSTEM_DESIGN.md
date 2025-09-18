@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # Edge Inference Gateway System Design
 
 This document expands on `docs/ARCHITECTURE.md` and describes the end-to-end platform we ship as the "edge infer gateway": how sensor data is collected, how models are orchestrated, and how agents close the decision loop in sub-second latency budgets.

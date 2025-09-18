@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Action primitives used by agents to trigger side effects."""
 from __future__ import annotations
 

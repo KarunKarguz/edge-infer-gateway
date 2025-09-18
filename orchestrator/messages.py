@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Message envelope shared across connectors, pipelines, and agents."""
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """End-to-end integration test for orchestrator + MQTT + stub gateway."""
 from __future__ import annotations
 

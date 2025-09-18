@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """MQTT connector for Wi-Fi/ESP edge nodes."""
 from __future__ import annotations
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """HTTP webhook dispatcher for enterprise integrations."""
 from __future__ import annotations
 

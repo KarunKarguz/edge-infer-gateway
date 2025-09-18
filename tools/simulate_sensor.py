@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Publish synthetic sensor payloads to MQTT for orchestrator testing."""
 from __future__ import annotations
 

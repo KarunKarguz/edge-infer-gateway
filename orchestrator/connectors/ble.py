@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """BLE connector for Arduino Nano 33 BLE Sense using bleak."""
 from __future__ import annotations
 

@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+
 # edge-infer-gateway Architecture
 
 This document captures the layout of the project, how the runtime is structured, and how to extend it for new models or deployment environments. For the full end-to-end system (sensor connectors, agent framework, action dispatch) see `docs/SYSTEM_DESIGN.md`.

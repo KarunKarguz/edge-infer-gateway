@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Simple threshold agent for environmental sensing."""
 from __future__ import annotations
 

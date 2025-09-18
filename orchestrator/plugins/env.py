@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """Pre/post processing helpers for environmental sensors."""
 from __future__ import annotations
 
