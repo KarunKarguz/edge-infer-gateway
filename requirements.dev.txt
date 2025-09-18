@@ -1,0 +1,4 @@
+-r requirements.orchestrator.txt
+pytest>=7.4
+pytest-asyncio>=0.21
+amqtt>=0.11

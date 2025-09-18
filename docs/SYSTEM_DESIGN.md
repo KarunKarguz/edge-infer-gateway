@@ -156,6 +156,6 @@ actions:
 ## Validation Paths
 - `tools/simulate_sensor.py` can publish synthetic trajectories to MQTT to validate pipelines without hardware.
 - `clients/python/examples/benchmark.py` remains the reference for measuring model latency once the orchestrator is online.
-- Integration tests spin up the orchestrator, a loopback MQTT broker (using `gmqtt`/`asyncio-mqtt` test server), and the TensorRT gateway in-process to assert end-to-end latency contracts.
+- Integration test harness (`tests/test_integration.py`) spins up the orchestrator, an in-process MQTT broker, and a stub TensorRT gateway to assert end-to-end latency contracts in CI.
 
 ```

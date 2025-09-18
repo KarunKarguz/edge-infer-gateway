@@ -129,6 +129,11 @@ Notes:
 - Prometheus metrics listen on the port declared in `config.metrics_port` (defaults to 9108).
 - MQTT/BLE/OpenCV dependencies are preinstalled in the container via `requirements.orchestrator.txt`. Install the same file on bare-metal deployments.
 
+## Tests
+- Dev dependencies: `python3 -m pip install -r requirements.dev.txt`
+- Run orchestrator integration smoke test: `pytest tests/test_integration.py`
+- The integration harness spins up a stub TensorRT gateway, an in-process MQTT broker, and the Python orchestrator to validate model routing + latency reporting.
+
 ### C++ Streaming Client
 Build with OpenCV enabled to use the streaming client:
 ```bash

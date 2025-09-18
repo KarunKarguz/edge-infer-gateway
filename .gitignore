@@ -17,6 +17,9 @@
 # Debugger Files
 *.pdb
 
+# Virtual environments
+.venv/
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
